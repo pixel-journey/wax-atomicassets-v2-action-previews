@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { previewCreateBuyo, previewCreateOffer } from "./offers";
+import { previewCreateBuyo, previewCreateOffer, previewAcceptOffer, previewCancelOffer, previewDeclineOffer } from "./offers";
 
 describe("two offers", () => {
   it("allows several AtomicAssets ids and refuses a self-offer", () => {
@@ -40,5 +40,17 @@ describe("two offers", () => {
       reason: "createbuyo rejects more than one asset",
     });
     expect(previewCreateBuyo([]).ok).toBe(false);
+  });
+
+  it("lets the sender cancel and the recipient accept or decline", () => {
+    const rows = [{ id: "7", sender: "alice", recipient: "bob" }];
+    expect(previewCancelOffer(rows, "7", "alice")).toEqual({ ok: true, action: "canceloffer", id: "7" });
+    expect(previewAcceptOffer(rows, "7", "bob")).toEqual({ ok: true, action: "acceptoffer", id: "7" });
+    expect(previewDeclineOffer(rows, "7", "bob")).toEqual({ ok: true, action: "declineoffer", id: "7" });
+    expect(previewCancelOffer(rows, "7", "bob").ok).toBe(false);
+    expect(previewAcceptOffer(rows, "9", "bob")).toEqual({
+      ok: false,
+      reason: "No offer with this id exists",
+    });
   });
 });

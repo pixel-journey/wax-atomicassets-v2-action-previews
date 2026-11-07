@@ -54,3 +54,48 @@ export function previewCreateBuyo(assetIds: readonly string[]): Buyo {
   if (uint64(assetIds[0]) === null) return { ok: false, reason: `${assetIds[0]} is not a positive uint64` };
   return { ok: true, action: "createbuyo", assetId: assetIds[0] };
 }
+
+/**
+ * canceloffer / acceptoffer / declineoffer from the same cpp file.
+ * Auth only. Ownership is re-checked on accept in the contract; this
+ * preview does not hold asset tables, so it does not re-check them.
+ * The contract string for a missing offer is "No offer with this id exists".
+ */
+export type OfferRow = { id: string; sender: string; recipient: string };
+
+export type OfferStep =
+  | { ok: false; reason: string }
+  | { ok: true; action: "canceloffer" | "acceptoffer" | "declineoffer"; id: string };
+
+function findOffer(offers: readonly OfferRow[], id: string): OfferRow | null {
+  if (uint64(id) === null) return null;
+  return offers.find((row) => row.id === id) ?? null;
+}
+
+export function previewCancelOffer(offers: readonly OfferRow[], id: string, actor: string): OfferStep {
+  const bad = account(actor, "actor");
+  if (bad) return { ok: false, reason: bad };
+  const row = findOffer(offers, id);
+  if (!row) return { ok: false, reason: "No offer with this id exists" };
+  if (actor !== row.sender) return { ok: false, reason: "require_auth would fail" };
+  return { ok: true, action: "canceloffer", id };
+}
+
+export function previewAcceptOffer(offers: readonly OfferRow[], id: string, actor: string): OfferStep {
+  const bad = account(actor, "actor");
+  if (bad) return { ok: false, reason: bad };
+  const row = findOffer(offers, id);
+  if (!row) return { ok: false, reason: "No offer with this id exists" };
+  if (actor !== row.recipient) return { ok: false, reason: "require_auth would fail" };
+  return { ok: true, action: "acceptoffer", id };
+}
+
+export function previewDeclineOffer(offers: readonly OfferRow[], id: string, actor: string): OfferStep {
+  const bad = account(actor, "actor");
+  if (bad) return { ok: false, reason: bad };
+  const row = findOffer(offers, id);
+  if (!row) return { ok: false, reason: "No offer with this id exists" };
+  if (actor !== row.recipient) return { ok: false, reason: "require_auth would fail" };
+  return { ok: true, action: "declineoffer", id };
+}
+

@@ -57,6 +57,10 @@ AtomicAssets `createoffer` still takes two vectors. Two sender ids and an empty 
 
 AtomicMarket v2.0.0 says `createbuyo` rejects more than one asset. `previewCreateBuyo(["1001", "1002"])` fails. `previewCreateBuyo(["42"])` returns `action: "createbuyo"`. That sentence is the release note. The market source was not opened in this pass. `wax-atomic-markets-and-trading-interface` `buyPreview` refuses a second id on a sale. It still does not build `createbuyo`.
 
+`previewCancelOffer` requires the sender. `previewAcceptOffer` and `previewDeclineOffer` require the recipient. A missing id returns `No offer with this id exists`. These are auth checks only. The contract re-checks ownership on accept; this preview does not.
+
+`previewCreateTemplate(false, false)` returns the contract string `A template cannot be both non-transferable and non-burnable`. The other three pairs succeed. The check is at creation. An already-stored template in that state is not deleted by this function.
+
 Native backing stays deprecated. `backasset` in the same cpp file fails unconditionally. Nothing here escrows a token. Holder splits remain `equalSplit` and `duePayout` in `wax-nft-backed-token-unlock-visualizer`.
 
 ### What this course will not teach

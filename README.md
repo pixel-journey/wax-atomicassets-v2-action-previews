@@ -10,6 +10,8 @@ Read from [atomicassets-contract v2.0.0](https://github.com/atomicassets/atomica
 | `propose` / `accept` / `reject` | One pending swap. Owner permission can accept at `now`. Active permission waits `604800` seconds, then expires `604800` seconds after that. Reject keeps the author. |
 | `setRamPayer` / `setLastPayer` | The new payer must already hold the id. The last payer is the greatest asset id, not a smaller id in the collection you named. |
 | `previewCreateOffer` | AtomicAssets `createoffer` may list several ids. It may not offer to yourself. Shape only: no ownership check. |
+| `previewCancelOffer` / `previewAcceptOffer` / `previewDeclineOffer` | Sender cancels. Recipient accepts or declines. Missing id uses the contract string. Auth only. |
+| `previewCreateTemplate` | Both flags false is refused. Every other pair is allowed. |
 | `previewCreateBuyo` | AtomicMarket release note: `createbuyo` is exactly one asset. The market C++ was not opened. |
 
 The course is [EDUCATION.md](./EDUCATION.md).
