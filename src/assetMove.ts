@@ -53,3 +53,19 @@ export function previewBurn(owner: string, assetId: string, held: readonly Held[
   if (row.hasTemplate && !row.burnable) return { ok: false, reason: "The asset is not burnable" };
   return { ok: true, action: "burnasset", ids: [assetId] };
 }
+
+/**
+ * setassetdata writes mutable data and sets ram_payer to the authorized editor.
+ * Serialization against the schema is not done. Collection auth is not checked.
+ */
+export type MutableWrite =
+  | { ok: false; reason: string }
+  | { ok: true; action: "setassetdata"; ramPayer: string };
+
+export function previewSetMutable(assetExists: boolean, editor: string): MutableWrite {
+  const bad = account(editor, "editor");
+  if (bad) return { ok: false, reason: bad };
+  if (!assetExists) return { ok: false, reason: "No asset with this id exists" };
+  return { ok: true, action: "setassetdata", ramPayer: editor };
+}
+

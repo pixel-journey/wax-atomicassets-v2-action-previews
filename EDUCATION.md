@@ -67,6 +67,8 @@ AtomicMarket v2.0.0 says `createbuyo` rejects more than one asset. `previewCreat
 
 `previewPayOfferRam` rewrites `ramPayer`. A missing offer uses `No offer with this id exists`. The same payer is allowed, matching the erase-then-emplace. Byte amounts are not measured.
 
+`previewSetMutable(true, editor)` returns `ramPayer: editor`. That is `setassetdata`: the authorized editor who writes mutable data becomes the RAM payer. A missing asset returns `No asset with this id exists` (not the burn string, which adds "for this owner"). The schema is not serialized here. Mint refusals, including empty `tokens_to_back`, are [wax-atomic-template-and-schema-explorer](https://github.com/pixel-journey/wax-atomic-template-and-schema-explorer).
+
 Native backing stays deprecated. `backasset` in the same cpp file fails unconditionally. Nothing here escrows a token. Holder splits remain `equalSplit` and `duePayout` in `wax-nft-backed-token-unlock-visualizer`.
 
 ### What this course will not teach

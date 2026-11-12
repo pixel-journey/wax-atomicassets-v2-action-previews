@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { previewBurn, previewTransfer } from "./assetMove";
+import { previewBurn, previewSetMutable, previewTransfer } from "./assetMove";
 
 const held = [
   { id: "1", hasTemplate: true, transferable: true, burnable: true },
@@ -31,6 +31,18 @@ describe("transfer and burn flags", () => {
     expect(previewBurn("alice", "9", held)).toEqual({
       ok: false,
       reason: "No asset with this id exists for this owner",
+    });
+  });
+
+  it("makes the editor the RAM payer when mutable data is written", () => {
+    expect(previewSetMutable(true, "editor")).toEqual({
+      ok: true,
+      action: "setassetdata",
+      ramPayer: "editor",
+    });
+    expect(previewSetMutable(false, "editor")).toEqual({
+      ok: false,
+      reason: "No asset with this id exists",
     });
   });
 });
