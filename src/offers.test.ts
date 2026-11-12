@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { previewCreateBuyo, previewCreateOffer, previewAcceptOffer, previewCancelOffer, previewDeclineOffer } from "./offers";
+import { previewCreateBuyo, previewCreateOffer, previewAcceptOffer, previewCancelOffer, previewDeclineOffer, previewPayOfferRam } from "./offers";
 
 describe("two offers", () => {
   it("allows several AtomicAssets ids and refuses a self-offer", () => {
@@ -49,6 +49,21 @@ describe("two offers", () => {
     expect(previewDeclineOffer(rows, "7", "bob")).toEqual({ ok: true, action: "declineoffer", id: "7" });
     expect(previewCancelOffer(rows, "7", "bob").ok).toBe(false);
     expect(previewAcceptOffer(rows, "9", "bob")).toEqual({
+      ok: false,
+      reason: "No offer with this id exists",
+    });
+  });
+
+  it("moves the offer RAM payer without measuring bytes", () => {
+    const paid = [{ id: "7", sender: "alice", recipient: "bob", ramPayer: "alice" }];
+    expect(previewPayOfferRam(paid, "7", "carol")).toEqual({
+      ok: true,
+      action: "payofferram",
+      id: "7",
+      ramPayer: "carol",
+      previousPayer: "alice",
+    });
+    expect(previewPayOfferRam(paid, "8", "carol")).toEqual({
       ok: false,
       reason: "No offer with this id exists",
     });

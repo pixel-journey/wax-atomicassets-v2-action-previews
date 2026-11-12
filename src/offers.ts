@@ -99,3 +99,23 @@ export function previewDeclineOffer(offers: readonly OfferRow[], id: string, act
   return { ok: true, action: "declineoffer", id };
 }
 
+/**
+ * payofferram rewrites the offer row under a new payer.
+ * The contract always erase-then-emplace, even when the payer is unchanged.
+ * Byte refund amounts are not measured.
+ */
+export type PaidOffer = OfferRow & { ramPayer: string };
+
+export type PayRam =
+  | { ok: false; reason: string }
+  | { ok: true; action: "payofferram"; id: string; ramPayer: string; previousPayer: string };
+
+export function previewPayOfferRam(offers: readonly PaidOffer[], id: string, payer: string): PayRam {
+  const bad = account(payer, "payer");
+  if (bad) return { ok: false, reason: bad };
+  const row = offers.find((item) => item.id === id);
+  if (!row || uint64(id) === null) return { ok: false, reason: "No offer with this id exists" };
+  return { ok: true, action: "payofferram", id, ramPayer: payer, previousPayer: row.ramPayer };
+}
+
+

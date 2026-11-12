@@ -59,7 +59,13 @@ AtomicMarket v2.0.0 says `createbuyo` rejects more than one asset. `previewCreat
 
 `previewCancelOffer` requires the sender. `previewAcceptOffer` and `previewDeclineOffer` require the recipient. A missing id returns `No offer with this id exists`. These are auth checks only. The contract re-checks ownership on accept; this preview does not.
 
-`previewCreateTemplate(false, false)` returns the contract string `A template cannot be both non-transferable and non-burnable`. The other three pairs succeed. The check is at creation. An already-stored template in that state is not deleted by this function.
+`previewCreateTemplate(false, false)` returns the contract string `A template cannot be both non-transferable and non-burnable`. The other three pairs succeed. The check is at creation. An already-stored template in that state is not deleted by this function. Delete, lock, and reduce-max live in [wax-atomic-template-and-schema-explorer](https://github.com/pixel-journey/wax-atomic-template-and-schema-explorer).
+
+`previewTransfer` refuses a self-send, an empty id list, a memo over 256, a repeated id, a missing id, and a template with `transferable: false`. The contract string includes the id: `At least one asset isn't transferable (ID: …)`. A templateless asset skips that flag. `is_account` is not checked.
+
+`previewBurn` refuses a missing id and a template with `burnable: false` (`The asset is not burnable`). A templateless asset can burn. Pre-v2 backed tokens are not modeled. v2 minting no longer attaches them.
+
+`previewPayOfferRam` rewrites `ramPayer`. A missing offer uses `No offer with this id exists`. The same payer is allowed, matching the erase-then-emplace. Byte amounts are not measured.
 
 Native backing stays deprecated. `backasset` in the same cpp file fails unconditionally. Nothing here escrows a token. Holder splits remain `equalSplit` and `duePayout` in `wax-nft-backed-token-unlock-visualizer`.
 

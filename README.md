@@ -12,6 +12,8 @@ Read from [atomicassets-contract v2.0.0](https://github.com/atomicassets/atomica
 | `previewCreateOffer` | AtomicAssets `createoffer` may list several ids. It may not offer to yourself. Shape only: no ownership check. |
 | `previewCancelOffer` / `previewAcceptOffer` / `previewDeclineOffer` | Sender cancels. Recipient accepts or declines. Missing id uses the contract string. Auth only. |
 | `previewCreateTemplate` | Both flags false is refused. Every other pair is allowed. |
+| `previewTransfer` / `previewBurn` | Non-transferable and non-burnable templates fail with the contract strings. Templateless assets skip the flag. |
+| `previewPayOfferRam` | Rewrites the offer payer. Does not measure bytes. |
 | `previewCreateBuyo` | AtomicMarket release note: `createbuyo` is exactly one asset. The market C++ was not opened. |
 
 The course is [EDUCATION.md](./EDUCATION.md).
