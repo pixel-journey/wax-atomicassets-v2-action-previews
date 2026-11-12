@@ -7,7 +7,13 @@ describe("ram payer", () => {
       [{ assetId: "5", collection: "pixel", ramPayer: "ram.payer" }],
       "5",
       "alice",
-    )).toEqual({ ok: true, assetId: "5", oldPayer: "ram.payer", newPayer: "alice" });
+    )).toEqual({
+      ok: true,
+      assetId: "5",
+      oldPayer: "ram.payer",
+      newPayer: "alice",
+      log: { action: "logrampayer", newPayer: "alice", assetId: "5", oldPayer: "ram.payer" },
+    });
     expect(setRamPayer(
       [{ assetId: "5", collection: "pixel", ramPayer: "alice" }],
       "5",

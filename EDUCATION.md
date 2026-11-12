@@ -45,9 +45,9 @@ npm test
 | `setlastpayer` updates every asset in the collection | filter by collection | the greatest `assetId` must already be in that collection | id `9` in `other` blocks a call aimed at `pixel` |
 | Pay RAM for an asset you do not hold | any id | the id must be in the list passed as the new payer's assets | empty list |
 | Set the payer to the same account | no-op success | the contract string refuses it | already `alice` |
-| Treat this as the byte estimate | 8 bytes per name | no byte count in `ramPayer.ts` | the return is old and new payer |
+| Treat this as the byte estimate | 8 bytes per name | no byte count in `ramPayer.ts` | the return is old and new payer, plus the `logrampayer` names |
 
-`wax-ram-cleanup-garbage-collection-assistant` is the byte estimate. Do not add these results.
+`wax-ram-cleanup-garbage-collection-assistant` is the byte estimate. Do not add these results. A successful `setRamPayer` also names the inline `logrampayer` tuple: the new payer, the asset id, the old payer, and the new payer again. The action is not sent. Attribute bytes live in [wax-atomic-template-and-schema-explorer](https://github.com/pixel-journey/wax-atomic-template-and-schema-explorer) `previewAttributeBytes`.
 
 ---
 
@@ -55,7 +55,7 @@ npm test
 
 AtomicAssets `createoffer` still takes two vectors. Two sender ids and an empty recipient side pass the shape check. Sender equal to recipient fails. A repeated id on one side fails. Memo length 256 passes the shape path; 257 fails. `checked: "shape-only"` means ownership and the transferable flag were not looked at. The contract does those next. This function stops before them.
 
-AtomicMarket v2.0.0 says `createbuyo` rejects more than one asset. `previewCreateBuyo(["1001", "1002"])` fails. `previewCreateBuyo(["42"])` returns `action: "createbuyo"`. That sentence is the release note. The market source was not opened in this pass. `wax-atomic-markets-and-trading-interface` `buyPreview` refuses a second id on a sale. It still does not build `createbuyo`.
+AtomicMarket `createbuyo` is one asset. The opened source and the tests are [wax-atomic-markets-and-trading-interface](https://github.com/pixel-journey/wax-atomic-markets-and-trading-interface). This file's `previewCreateBuyo` is only the one-id refusal. Do not treat it as the sale course.
 
 `previewCancelOffer` requires the sender. `previewAcceptOffer` and `previewDeclineOffer` require the recipient. A missing id returns `No offer with this id exists`. These are auth checks only. The contract re-checks ownership on accept; this preview does not.
 

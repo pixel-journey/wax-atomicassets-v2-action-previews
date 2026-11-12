@@ -14,7 +14,13 @@ export type Held = { assetId: string; collection: string; ramPayer: string };
 
 export type PayerMove =
   | { ok: false; reason: string }
-  | { ok: true; assetId: string; oldPayer: string; newPayer: string };
+  | {
+      ok: true;
+      assetId: string;
+      oldPayer: string;
+      newPayer: string;
+      log?: { action: "logrampayer"; newPayer: string; assetId: string; oldPayer: string };
+    };
 
 function parseHeld(rows: readonly Held[]): { ok: false; reason: string } | { ok: true; rows: { assetId: bigint; collection: string; ramPayer: string; text: string }[] } {
   if (rows.length > 64) return { ok: false, reason: "pass at most 64 assets" };
@@ -42,7 +48,13 @@ export function setRamPayer(ownedByNewPayer: readonly Held[], assetId: string, n
   const row = parsed.rows.find((item) => item.assetId === id);
   if (!row) return { ok: false, reason: "No asset with this id exists in the new_payer's account" };
   if (row.ramPayer === newPayer) return { ok: false, reason: "new_payer is already the ram_payer of this asset" };
-  return { ok: true, assetId: row.text, oldPayer: row.ramPayer, newPayer };
+  return {
+    ok: true,
+    assetId: row.text,
+    oldPayer: row.ramPayer,
+    newPayer,
+    log: { action: "logrampayer", newPayer, assetId: row.text, oldPayer: row.ramPayer },
+  };
 }
 
 export function setLastPayer(owned: readonly Held[], owner: string, collection: string): PayerMove {
