@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { previewCreateBuyo, previewCreateOffer, previewAcceptOffer, previewCancelOffer, previewDeclineOffer, previewPayOfferRam } from "./offers";
+import { previewCreateBuyo, previewCreateOffer, previewCreateOfferHeld, previewAcceptOffer, previewCancelOffer, previewDeclineOffer, previewPayOfferRam } from "./offers";
 
 describe("two offers", () => {
   it("allows several AtomicAssets ids and refuses a self-offer", () => {
@@ -69,3 +69,59 @@ describe("two offers", () => {
     });
   });
 });
+
+describe("createoffer with holdings", () => {
+  const assets = [
+    { id: "1", owner: "alice", hasTemplate: true, transferable: true },
+    { id: "2", owner: "alice", hasTemplate: true, transferable: false },
+    { id: "3", owner: "bob", hasTemplate: false, transferable: false },
+  ];
+
+  it("accepts a held transferable asset and a templateless asset", () => {
+    expect(previewCreateOfferHeld({
+      sender: "alice",
+      recipient: "bob",
+      senderAssetIds: ["1"],
+      recipientAssetIds: ["3"],
+      memo: "",
+      assets,
+    })).toEqual({ ok: true, checked: "held" });
+  });
+
+  it("uses the contract sentences for a missing id, a soulbound asset, and a duplicate side", () => {
+    expect(previewCreateOfferHeld({
+      sender: "alice",
+      recipient: "bob",
+      senderAssetIds: ["9"],
+      recipientAssetIds: [],
+      memo: "",
+      assets,
+    })).toEqual({
+      ok: false,
+      reason: "Offer sender doesn't own at least one of the provided assets (ID: 9)",
+    });
+    expect(previewCreateOfferHeld({
+      sender: "alice",
+      recipient: "bob",
+      senderAssetIds: ["2"],
+      recipientAssetIds: [],
+      memo: "",
+      assets,
+    })).toEqual({
+      ok: false,
+      reason: "At least one asset isn't transferable (ID: 2)",
+    });
+    expect(previewCreateOfferHeld({
+      sender: "alice",
+      recipient: "bob",
+      senderAssetIds: ["1"],
+      recipientAssetIds: ["3", "3"],
+      memo: "",
+      assets,
+    })).toEqual({
+      ok: false,
+      reason: "The assets in recipient_asset_ids must be unique",
+    });
+  });
+});
+

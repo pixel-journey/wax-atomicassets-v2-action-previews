@@ -118,4 +118,80 @@ export function previewPayOfferRam(offers: readonly PaidOffer[], id: string, pay
   return { ok: true, action: "payofferram", id, ramPayer: payer, previousPayer: row.ramPayer };
 }
 
+/**
+ * The ownership and transferable checks that follow the shape checks in
+ * atomicassets::createoffer. is_account is still not called.
+ * Uniqueness uses the contract sentences, not the shorter shape-only sentence.
+ * A templateless asset skips the transferable flag, matching template_id < 0.
+ */
+export type OfferAsset = {
+  id: string;
+  owner: string;
+  hasTemplate: boolean;
+  transferable: boolean;
+};
+
+export type HeldOffer =
+  | { ok: false; reason: string }
+  | { ok: true; checked: "held" };
+
+function uniqueSide(ids: readonly string[], sentence: string): string | null {
+  const seen = new Set<bigint>();
+  for (const id of ids) {
+    const n = uint64(id);
+    if (n === null) return `${id} is not a positive uint64`;
+    if (seen.has(n)) return sentence;
+    seen.add(n);
+  }
+  return null;
+}
+
+function sideOk(
+  ids: readonly string[],
+  owner: string,
+  who: "sender" | "recipient",
+  assets: readonly OfferAsset[],
+): string | null {
+  for (const id of ids) {
+    const row = assets.find((item) => item.id === id && item.owner === owner);
+    if (!row) {
+      return `Offer ${who} doesn't own at least one of the provided assets (ID: ${id})`;
+    }
+    if (row.hasTemplate && !row.transferable) {
+      return `At least one asset isn't transferable (ID: ${id})`;
+    }
+  }
+  return null;
+}
+
+export function previewCreateOfferHeld(input: {
+  sender: string;
+  recipient: string;
+  senderAssetIds: readonly string[];
+  recipientAssetIds: readonly string[];
+  memo: string;
+  assets: readonly OfferAsset[];
+}): HeldOffer {
+  const bad = account(input.sender, "sender") || account(input.recipient, "recipient");
+  if (bad) return { ok: false, reason: bad };
+  if (input.sender === input.recipient) return { ok: false, reason: "Can't send an offer to yourself" };
+  if (input.senderAssetIds.length === 0 && input.recipientAssetIds.length === 0) {
+    return { ok: false, reason: "Can't create an empty offer" };
+  }
+  if (input.memo.length > 256) return { ok: false, reason: "An offer memo can only be 256 characters max" };
+  const senderDup = uniqueSide(input.senderAssetIds, "The assets in sender_asset_ids must be unique");
+  if (senderDup) return { ok: false, reason: senderDup };
+  const recipientDup = uniqueSide(
+    input.recipientAssetIds,
+    "The assets in recipient_asset_ids must be unique",
+  );
+  if (recipientDup) return { ok: false, reason: recipientDup };
+  const senderFail = sideOk(input.senderAssetIds, input.sender, "sender", input.assets);
+  if (senderFail) return { ok: false, reason: senderFail };
+  const recipientFail = sideOk(input.recipientAssetIds, input.recipient, "recipient", input.assets);
+  if (recipientFail) return { ok: false, reason: recipientFail };
+  return { ok: true, checked: "held" };
+}
+
+
 

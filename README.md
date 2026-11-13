@@ -16,9 +16,11 @@ Course notes: [EDUCATION.md](./EDUCATION.md).
 | `propose` / `accept` / `reject` | One pending author swap. Owner can accept at `now`. Active permission waits `604800`s, then expires `604800`s after that. Reject keeps the author. |
 | `setRamPayer` / `setLastPayer` | New payer must already hold the id. Last payer is the greatest asset id, not a smaller id in the named collection. |
 | `previewCreateOffer` | `createoffer` may list several ids; may not offer to yourself. Shape only — no ownership check. |
+| `previewCreateOfferHeld` | Same action after the shape checks. Ownership and the transferable flag use the contract sentences, including the asset id. |
 | `previewCancelOffer` / `previewAcceptOffer` / `previewDeclineOffer` | Sender cancels; recipient accepts or declines. Missing id uses the contract string. Auth only. |
 | `previewCreateTemplate` | Both flags false is refused; every other pair is allowed. |
-| `previewTransfer` / `previewBurn` | Non-transferable / non-burnable templates fail with contract strings. Templateless assets skip the flag. |
+| `previewTransfer` / `previewBurn` | Non-transferable / non-burnable templates fail with contract strings. Templateless assets skip the flag. The flag check does not move tokens. |
+| `previewAnnounceDeposit` / `previewReceiveDeposit` / `previewWithdraw` / `previewBurnCredit` | Balances table only. Announce, memo `deposit`, withdraw. A burn of an asset that already has `backed_tokens` credits that table. This is not `backasset`. |
 | `previewPayOfferRam` | Rewrites the offer payer; does not measure bytes. |
 | `previewCreateBuyo` | AtomicMarket: `createbuyo` is exactly one asset (market C++ not opened here). |
 
@@ -26,6 +28,9 @@ Course notes: [EDUCATION.md](./EDUCATION.md).
 
 - `wax-ram-cleanup-garbage-collection-assistant` estimates bytes; it does not move `ram_payer`.
 - `wax-atomic-markets-and-trading-interface` previews `purchasesale` and refuses a second asset id on a sale; it does not build `createbuyo`.
+- [wax-drops-and-pack-opening-experience](https://github.com/pixel-journey/wax-drops-and-pack-opening-experience) is the pack unbox and `claimunboxed` course. A deposit memo is not an unbox memo.
+- [wax-nft-backed-token-unlock-visualizer](https://github.com/pixel-journey/wax-nft-backed-token-unlock-visualizer) is the holder-split math that replaces native backing.
+- [wax-atomic-template-and-schema-explorer](https://github.com/pixel-journey/wax-atomic-template-and-schema-explorer) holds delete, lock, reduce-max, and mint refusals including empty `tokens_to_back`.
 
 ```bash
 npm test
