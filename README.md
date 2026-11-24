@@ -1,9 +1,11 @@
 # AtomicAssets v2 action previews (shape and auth)
 
-> **Catalog:** [wax-ecosystem-blueprint-catalog](https://github.com/pixel-journey/wax-ecosystem-blueprint-catalog)  
+> **Catalog:** `wax-ecosystem-blueprint-catalog` (private index; not this public course)  
 > **Sources:** [atomicassets-contract v2.0.0](https://github.com/atomicassets/atomicassets-contract/releases/tag/v2.0.0)
 
 **Goal:** Lock the **shape and permission rules** of AtomicAssets v2 actions against the published headers and source — without compiling or broadcasting a transaction.
+
+On WAX the account is `atomicassets`. Another Antelope chain can deploy the same contract under a different account. These tests do not query that account. `orng.wax` is a WAX randomness contract and is not called here.
 
 Read from `include/atomicassets.hpp` and `src/atomicassets.cpp` in the v2.0.0 tree. `backasset` still fails in that release; this repository does not call it.
 
